@@ -1,5 +1,8 @@
 package turing.edu.az.ms_auth.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Component;
 import turing.edu.az.ms_auth.dao.entity.UserEntity;
 import turing.edu.az.ms_auth.model.dto.UserDto;
@@ -7,32 +10,16 @@ import turing.edu.az.ms_auth.model.dto.UserDto;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
-public class UserMapper {
+@Mapper(componentModel = "spring")
+public interface UserMapper {
 
-    public UserDto entityToDto(UserEntity userEntity) {
-        UserDto userDto = new UserDto();
-        userDto.setUsername(userEntity.getUsername());
-        userDto.setPassword(userEntity.getPassword());
+    UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
-        return userDto;
-    }
+    UserDto entityToDto(UserEntity userEntity);
 
-    public List<UserDto> entityesToDtos(List<UserEntity> userEntityList) {
-        List<UserDto> userDtoList = new ArrayList<>();
-        for (UserEntity userEntity : userEntityList) {
-            userDtoList.add(entityToDto(userEntity));
-        }
-        return userDtoList;
-    }
+    List<UserDto> entityListToDtoList(List<UserEntity> userEntity);
 
-    public UserEntity DtoToEntity(UserDto userDto) {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setUsername(userDto.getUsername());
-        userEntity.setPassword(userDto.getPassword());
+    UserEntity dtoToEntity(UserDto userDto);
 
-        return userEntity;
-    }
-
-
+    void updateEntityFromDto(UserDto userDto, @MappingTarget UserEntity userEntity);
 }
