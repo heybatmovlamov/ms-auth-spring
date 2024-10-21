@@ -23,4 +23,9 @@ public class UserController {
     public UserDto getUser(String username) {
         return userService.getUser(username);
     }
+
+    @PatchMapping
+    public UserDto updateUser(@RequestBody UserDto userDto) {
+        return userService.updateUser(userDto);
+    }
 }
