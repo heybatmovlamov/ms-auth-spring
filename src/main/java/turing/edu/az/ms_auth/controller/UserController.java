@@ -19,4 +19,8 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+    @GetMapping
+    public UserDto getUser(String username) {
+        return userService.getUser(username);
+    }
 }
