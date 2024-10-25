@@ -7,6 +7,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import turing.edu.az.ms_auth.dao.repository.UserRepository;
 import turing.edu.az.ms_auth.jwt.JwtService;
 import turing.edu.az.ms_auth.mapper.UserMapper;
@@ -22,17 +24,21 @@ public class AuthService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-
-    public UserDto register(UserDto userDto) {
+    private final RedisService redisService;
+    public UserDto register(@RequestBody UserDto userDto) {
         var userEntity = userMapper.dtoToEntity(userDto);
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
         return userMapper.entityToDto(userRepository.save(userEntity));
     }
 
-    public TokenDto login(UserDto userDto) {//todo when security added
+    public TokenDto login(@RequestBody UserDto userDto) {
         Authentication authenticationToken = new UsernamePasswordAuthenticationToken(userDto.getUsername(), userDto.getPassword());
         authenticationManager.authenticate(authenticationToken);
-        return jwtService.generateToken(userDto.getUsername());
-        //todo redis add refresh token
+        TokenDto generatedToken = jwtService.generateToken(userDto.getUsername());
+        redisService.saveRefreshToken(generatedToken.getRefreshToken());
+        return generatedToken;
+    }
+    public void  logout(@RequestHeader("Authorization") String token){
+        redisService.deleteRefreshToken(token);
     }
 }
